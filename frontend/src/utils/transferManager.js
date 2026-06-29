@@ -21,6 +21,8 @@ class TransferManager {
       progress: 0,
       error: "",
       startTime: Date.now(),
+      speed: 0,
+      _lastSpeedTime: Date.now(),
     };
     this.queue.push(transfer);
     this._startPolling();
@@ -34,6 +36,24 @@ class TransferManager {
   }
 
   _applyUpdate(transfer, data) {
+    const now = Date.now();
+    const prevBytes = transfer.copiedBytes || 0;
+    const prevTime = transfer._lastSpeedTime || transfer.startTime || now;
+    const timeDelta = (now - prevTime) / 1000;
+    const bytesDelta = (data.copiedBytes || 0) - prevBytes;
+
+    if (timeDelta > 0.5 && bytesDelta > 0 && data.status === "running") {
+      const instantSpeed = bytesDelta / timeDelta;
+      transfer.speed =
+        transfer.speed > 0
+          ? transfer.speed * 0.7 + instantSpeed * 0.3
+          : instantSpeed;
+      transfer._lastSpeedTime = now;
+    } else if (data.status !== "running") {
+      transfer.speed = 0;
+      transfer._lastSpeedTime = now;
+    }
+
     transfer.status = data.status;
     transfer.totalBytes = data.totalBytes;
     transfer.copiedBytes = data.copiedBytes;

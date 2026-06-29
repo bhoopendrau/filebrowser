@@ -10,32 +10,19 @@
         class="transfer-item-wrapper"
         :class="{ 'has-error': transfer.status === 'failed' }"
       >
-        <div class="transfer-item">
+        <div class="transfer-item-header">
           <i class="material-symbols file-icon">{{
             transfer.action === "move" ? "drive_file_move" : "file_copy"
           }}</i>
-          <div class="file-info">
-            <p class="file-name">
-              {{ getTransferName(transfer) }}
-              <span v-if="transfer.status === 'calculating'" class="status-badge calculating">
-                {{ $t("prompts.calculating") }}
-              </span>
-            </p>
-            <progress-bar
-              :val="progressVal(transfer)"
-              :unit="progressUnit(transfer)"
-              :max="transfer.totalBytes || 100"
-              :status="progressStatus(transfer)"
-              text-position="inside"
-              size="20"
-            />
-            <p v-if="transfer.currentFile && transfer.status === 'running'" class="current-file">
-              {{ transfer.currentFile }}
-              <span v-if="transfer.itemsTotal > 1">
-                ({{ transfer.itemsCompleted }}/{{ transfer.itemsTotal }})
-              </span>
-            </p>
-          </div>
+          <p class="file-name">
+            {{ getTransferName(transfer) }}
+            <span v-if="transfer.status === 'calculating'" class="status-badge calculating">
+              {{ $t("prompts.calculating") }}
+            </span>
+          </p>
+          <span v-if="transfer.speed > 0 && transfer.status === 'running'" class="transfer-speed">
+            {{ formatSpeed(transfer.speed) }}
+          </span>
           <div class="file-actions">
             <button
               type="button"
@@ -59,6 +46,20 @@
             </button>
           </div>
         </div>
+        <progress-bar
+          :val="progressVal(transfer)"
+          :unit="progressUnit(transfer)"
+          :max="transfer.totalBytes || 100"
+          :status="progressStatus(transfer)"
+          text-position="inside"
+          size="20"
+        />
+        <p v-if="transfer.currentFile && transfer.status === 'running'" class="current-file">
+          {{ transfer.currentFile }}
+          <span v-if="transfer.itemsTotal > 1">
+            ({{ transfer.itemsCompleted }}/{{ transfer.itemsTotal }})
+          </span>
+        </p>
         <div v-if="transfer.status === 'failed'" class="error-banner" role="alert">
           {{ transfer.error || $t("prompts.transferFailed") }}
         </div>
@@ -83,6 +84,7 @@
 <script>
 import { transferManager } from "@/utils/transferManager";
 import ProgressBar from "@/components/ProgressBar.vue";
+import { getHumanReadableFilesize } from "@/utils/filesizes.js";
 
 export default {
   name: "transfer",
@@ -158,6 +160,9 @@ export default {
     clearCompleted() {
       transferManager.clearCompleted();
     },
+    formatSpeed(bytesPerSec) {
+      return `${getHumanReadableFilesize(bytesPerSec)}/s`;
+    },
   },
 };
 </script>
@@ -195,24 +200,35 @@ export default {
   word-break: break-word;
 }
 
-.transfer-item {
+.transfer-item-header {
   display: flex;
   align-items: center;
-  padding: 0.5em 0;
+  padding: 0.5em 0 0.25em 0;
+  min-width: 0;
 }
 
 .file-icon {
+  flex-shrink: 0;
   margin-right: 0.5em;
   color: #999;
-}
-
-.file-info {
-  flex-grow: 1;
 }
 
 .file-name {
   margin: 0;
   font-size: 0.9em;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.transfer-speed {
+  flex-shrink: 0;
+  font-size: 0.8em;
+  color: #666;
+  margin-left: 0.5em;
+  white-space: nowrap;
 }
 
 .current-file {
@@ -234,6 +250,10 @@ export default {
 .status-badge.calculating {
   background: #fff8d6;
   color: #9e7600;
+}
+
+.file-actions {
+  flex-shrink: 0;
 }
 
 .file-actions .action {
