@@ -3,6 +3,7 @@ import { cancelTransfer, listTransfers } from "@/api/transfers";
 import { showSuccess } from "@/notify/message.js";
 import i18n from "@/i18n";
 import { mutations } from "@/store";
+import { goToItemNotificationButton } from "@/utils/notificationActions";
 
 class TransferManager {
   constructor() {
@@ -10,11 +11,13 @@ class TransferManager {
     this._pollTimer = null;
   }
 
-  addJob(jobId, action, items) {
+  addJob(jobId, action, items, { destPath, destSource } = {}) {
     const transfer = {
       id: jobId,
       action,
       items,
+      destPath,
+      destSource,
       status: "pending",
       totalBytes: 0,
       copiedBytes: 0,
@@ -75,11 +78,25 @@ class TransferManager {
 
   _onTransferComplete(transfer) {
     const t = i18n.global.t;
-    if (transfer.action === "move") {
-      showSuccess(t("prompts.moveSuccess"));
-    } else {
-      showSuccess(t("prompts.copySuccess"));
+    const message =
+      transfer.action === "move"
+        ? t("prompts.moveSuccess")
+        : t("prompts.copySuccess");
+
+    const options = {};
+    if (transfer.destPath) {
+      options.icon = "folder";
+      options.buttons = [
+        goToItemNotificationButton(
+          t("buttons.goToItem"),
+          transfer.destSource || null,
+          transfer.destPath,
+          false
+        ),
+      ];
     }
+
+    showSuccess(message, options);
     mutations.setReload(true);
   }
 
