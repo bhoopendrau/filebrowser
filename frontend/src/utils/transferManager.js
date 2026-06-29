@@ -1,5 +1,8 @@
 import { reactive } from "vue";
 import { cancelTransfer, listTransfers } from "@/api/transfers";
+import { showSuccess } from "@/notify/message.js";
+import i18n from "@/i18n";
+import { mutations } from "@/store";
 
 class TransferManager {
   constructor() {
@@ -54,6 +57,7 @@ class TransferManager {
       transfer._lastSpeedTime = now;
     }
 
+    const prevStatus = transfer.status;
     transfer.status = data.status;
     transfer.totalBytes = data.totalBytes;
     transfer.copiedBytes = data.copiedBytes;
@@ -63,6 +67,20 @@ class TransferManager {
     transfer.error = data.error || "";
     transfer.progress =
       data.totalBytes > 0 ? (data.copiedBytes / data.totalBytes) * 100 : 0;
+
+    if (prevStatus !== "completed" && data.status === "completed") {
+      this._onTransferComplete(transfer);
+    }
+  }
+
+  _onTransferComplete(transfer) {
+    const t = i18n.global.t;
+    if (transfer.action === "move") {
+      showSuccess(t("prompts.moveSuccess"));
+    } else {
+      showSuccess(t("prompts.copySuccess"));
+    }
+    mutations.setReload(true);
   }
 
   _startPolling() {

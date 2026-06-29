@@ -11,10 +11,11 @@
         :class="{ 'has-error': transfer.status === 'failed' }"
       >
         <div class="transfer-item-header">
-          <!-- eslint-disable-next-line @intlify/vue-i18n/no-raw-text -->
+          <!-- eslint-disable @intlify/vue-i18n/no-raw-text -->
           <i class="material-symbols file-icon">{{
             transfer.action === "move" ? "drive_file_move" : "file_copy"
           }}</i>
+          <!-- eslint-enable @intlify/vue-i18n/no-raw-text -->
           <p class="file-name">
             {{ getTransferName(transfer) }}
             <span v-if="transfer.status === 'calculating'" class="status-badge calculating">
@@ -57,10 +58,11 @@
         />
         <p v-if="transfer.currentFile && transfer.status === 'running'" class="current-file">
           {{ transfer.currentFile }}
-          <!-- eslint-disable-next-line @intlify/vue-i18n/no-raw-text -->
+          <!-- eslint-disable @intlify/vue-i18n/no-raw-text -->
           <span v-if="transfer.itemsTotal > 1">
             ({{ transfer.itemsCompleted }}/{{ transfer.itemsTotal }})
           </span>
+          <!-- eslint-enable @intlify/vue-i18n/no-raw-text -->
         </p>
         <div v-if="transfer.status === 'failed'" class="error-banner" role="alert">
           {{ transfer.error || $t("prompts.transferFailed") }}
