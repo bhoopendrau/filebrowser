@@ -11,6 +11,7 @@
         :class="{ 'has-error': transfer.status === 'failed' }"
       >
         <div class="transfer-item-header">
+          <!-- eslint-disable-next-line @intlify/vue-i18n/no-raw-text -->
           <i class="material-symbols file-icon">{{
             transfer.action === "move" ? "drive_file_move" : "file_copy"
           }}</i>
@@ -56,6 +57,7 @@
         />
         <p v-if="transfer.currentFile && transfer.status === 'running'" class="current-file">
           {{ transfer.currentFile }}
+          <!-- eslint-disable-next-line @intlify/vue-i18n/no-raw-text -->
           <span v-if="transfer.itemsTotal > 1">
             ({{ transfer.itemsCompleted }}/{{ transfer.itemsTotal }})
           </span>
@@ -136,10 +138,10 @@ export default {
       return "default";
     },
     getTransferName(transfer) {
-      if (transfer.items && transfer.items.length === 1) {
+      if (transfer.items?.length === 1) {
         return transfer.items[0].name || transfer.items[0].from?.split("/").pop() || "Transfer";
       }
-      if (transfer.items && transfer.items.length > 1) {
+      if (transfer.items?.length > 1) {
         return `${transfer.items.length} items`;
       }
       return "Transfer";
@@ -152,7 +154,7 @@ export default {
       );
     },
     cancelTransfer(id) {
-      transferManager.cancel(id);
+      void transferManager.cancel(id);
     },
     removeTransfer(id) {
       transferManager.remove(id);

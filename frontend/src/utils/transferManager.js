@@ -67,7 +67,7 @@ class TransferManager {
 
   _startPolling() {
     if (this._pollTimer) return;
-    this._pollTimer = setInterval(() => this._poll(), 1000);
+    this._pollTimer = setInterval(() => void this._poll(), 1000);
   }
 
   _stopPolling() {
