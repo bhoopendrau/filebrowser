@@ -5,7 +5,6 @@
 @import "./_banners.css";
 @import "./fonts.css";
 @import "./base.css";
-@import "./header.css";
 @import "./listing.css";
 @import "./dashboard.css";
 @import "./mobile.css";
@@ -351,13 +350,9 @@ body.rtl .card-content .small+input {
     cursor: pointer;
 }
 
-.clickable:hover,
-.plyr .plyr__control:hover,
-button:hover,
-.action:hover,
 .listing-item.drag-hover {
-    box-shadow: inset 0 -3em 3em rgba(172, 172, 172, 0.211),
-    0 0 0 2px var(--alt-background) !important;
+    box-shadow: inset 0 0 0 2px var(--primaryColor) !important;
+    background-color: color-mix(in srgb, var(--primaryColor) 10%, var(--surfacePrimary)) !important;
 }
 
 .listing-item[aria-selected="true"] .material-symbols-outlined,
